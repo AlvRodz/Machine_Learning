@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1543946183699.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "FDF62AC4",
+    "lastKnownWriteTime" : 1544181438,
+    "last_content_update" : 1544438614594,
+    "path" : "C:/Users/Alvaro_2/Desktop/DS MASTER/Github/Machine Learning/ML_descent_gradient/Cut_off_errors.R",
+    "project_path" : "Cut_off_errors.R",
+    "properties" : {
+        "cursorPosition" : "26,0",
+        "scrollLine" : "10",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,272 @@
+---
+title: "ML - Gradient descent assignments"
+author: "Álvaro Rodríguez"
+date: "december 4th, 2018"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    number_sections: true
+---
+
+
+![](images/dg.jpg)
+
+# Assignment
+
+Based on the notes "Cost functions and gradient descent"(Diego J. Bodas Sagi, october 2017), where logistic regression functions optimized by "Gradient Descent" method are defined and explained, this note seeks to accomplished the next assignments:
+
+1. Test the predefined *TestGradientDescent* function with the training set (*4_1_data.csv*). Obtain the confusion matrix. 
+
+2. Obtain a graph representing how the cost function evolves depending of the number of iterations.
+
+
+# Bases
+
+As regarded before, we are using the functions described on *Cost functions and gradient descent*, and we´ll use the same data to train and test our functions.
+
+## Data
+
+As mentioned before, the data used for our tasks is *4_1_data.csv*.
+
+The data set contains, for 100 students, the pair of scores (score.1, score.2) achieved in two different exams, where the variable label states which students passed (1) or didn´t pass (0) the subject. 
+
+```{r}
+
+data <- read.csv("data/4_1_data.csv")
+
+plot(data$score.1, data$score.2, col = as.factor(data$label), xlab = "Score-1", ylab = "Score-2")
+
+```
+
+## Predefined functions
+
+### Sigmoid function
+
+$\sigma(z) = \frac{1}{1 + e^{-z}}$
+
+```{r}
+
+# Sigmoid function
+Sigmoid <- function(x) { 
+  1 / (1 + exp(-x))
+}
+
+# Plotting example
+
+x <- seq(-5, 5, 0.01)
+
+# and plot
+plot(x, Sigmoid(x), col='blue', ylim = c(-.2, 1))
+abline(h = 0, v = 0, col = "gray60")
+
+```
+
+
+### Cost function
+
+The logistic regression cost function is the following:
+
+$\ell(y, \hat{y}) = -(ylog(\hat{y}) + (1 - y)log(1 - \hat{y})$
+
+```{r}
+
+# Ref: https://www.r-bloggers.com/logistic-regression-with-r-step-by-step-implementation-part-2/
+# Cost Function
+# 
+
+CostFunction <- function(parameters, X, Y) {
+  n <- nrow(X)
+  # function to apply (%*% Matrix multiplication)
+  g <- Sigmoid(X %*% parameters)
+  J <- (1/n) * sum((-Y * log(g)) - ((1 - Y) * log(1 - g)))
+  return(J)
+}
+
+
+```
+
+
+
+### Gradient descent function
+
+The algorithm is the following (\alpha represents the **learning rate**):
+
+*Repeat until convergence*:
+
+$w = w - \alpha\frac{\partial\jmath(w, b)}{\partial w}$
+  
+$b = b - \alpha\frac{\partial\jmath(w, b)}{\partial b}$
+    
+*end algorithm*
+
+
+```{r}
+
+
+# We want to minimize the cost function. Then derivate this funcion
+TestGradientDescent <- function(iterations = 1200, X, Y) {
+  
+  # Initialize (b, W)
+  parameters <- rep(0, ncol(X))
+  # Check evolution
+  print(paste("Initial Cost Function value: ", 
+              convergence <- c(CostFunction(parameters, X, Y)), sep = ""))
+  
+  # updating (b, W) using gradient update
+  
+  # Derive theta using gradient descent using optim function
+  # Look for information about the "optim" function (there are other options)
+  parameters_optimization <- optim(par = parameters, fn = CostFunction, X = X, Y = Y, 
+                                   control = list(maxit = iterations))
+  #set parameters
+  parameters <- parameters_optimization$par
+  
+  # Check evolution
+  print(paste("Final Cost Function value: ", 
+              convergence <- c(CostFunction(parameters, X, Y)), sep = ""))
+
+ return(parameters) 
+}
+
+
+
+
+```
+
+
+
+
+# Exercise 1
+
+**Test the TestGradientDescent function with the training set (4_1_data.csv). Obtain the confusion matrix.**
+
+First of all, we feed the function with our explanatory variables, "scores.1" y "scores.2", and the dependent variable, "label". We need to add an additional column to consider the intercept or constant "$b$".
+
+Then we can calculate the intercept($b$) and the parameters ($w_{1}, w_{2}$) optimized by the gradient function.  
+
+the cost function evolves from an initial value of 0.69 to a final cost function value of 0.20. We have used the default value for iterations, 1200. 
+
+```{r}
+var.exp <- as.matrix(data[,1:2]) # Explanatory variables
+
+var.exp <- cbind(rep(1, nrow(var.exp)), var.exp) # Explanatory variables + constant
+
+var.dep <- as.matrix(data[,3]) # dependent variable
+
+parameters <- TestGradientDescent(X=var.exp,Y=var.dep) # optimized intercept and parameters w1, w2.
+
+parameters
+```
+
+
+- **Confusion Matrix**
+
+We would need to predict the value of the dependent variable. Thus we apply the logistic regression over the explanatory variables weighted according to the parameters ($w_{1}, w_{2}$) and the intercept term ($b$) calculated before.
+
+Finally, we have to select a "cut-off" parameter. For a given cut-off of 0.39, we are going to consider values below as 0, and the values above this threshold as 1.
+
+Once we have accomplish this steps, it´s possible to simply calculate the confusion matrix for our training data by comparing our predicted values and the real values.
+
+
+
+```{r}
+
+test_insample <- Sigmoid((var.exp) %*% parameters) # predicted dependent values
+
+cut_off <- 0.39 # selected cut-off
+
+predict <- ifelse(test_insample > 0.39,1,0) # applying cut-off
+
+real <- var.dep
+
+table(real,predict) #contingency table
+
+```
+
+
+We predicted that two students will fail the subject when those students actually passed it (error type 1). In the same way, we predicted that 6 students will pass the subject but they didn´t pass indeed (error type 2). In sum, 92% percent of students were accurately predicted.
+
+# Exercise 2
+
+First of all, taking into account that TestGradientDescent prints cost function´s value twice (initial and final) for each application, we should adjust the function to be used repeatedly, creating a TestGradientDescent_2 by removing results printing statements. 
+
+
+```{r}
+
+
+TestGradientDescent_2 <- function(iterations = 1200, X, Y) {
+  
+
+  parameters <- rep(0, ncol(X))
+
+  # removed: print(paste("Initial Cost Function value: ", convergence <- c(CostFunction(parameters, X, Y)), sep = ""))
+  
+  parameters_optimization <- optim(par = parameters, fn = CostFunction, X = X, Y = Y, 
+                                   control = list(maxit = iterations))
+
+  parameters <- parameters_optimization$par
+  
+  # removed: print(paste("Final Cost Function value: ",convergence <- c(CostFunction(parameters, X, Y)), sep = ""))
+
+ return(parameters) 
+}
+
+
+
+```
+
+
+
+**Obtain a graph representing how the cost function evolves depending of the number of iterations.**
+
+We have created a function -iterations_costfunction- using the descent gradient function and logistic regression cost function. This function optimize our parameters for each maximun iteration number $(1,2,3...n)$, and calculate the cost function for those parameters. Once it is calculated then it is plotted.
+
+We realize that the logistic cost functions values barely change from aprox. iteration 80 to iteration 1200. Considering four decimals, the minimun is achived in the iteration 116, and remain the same all the way to 1200 iterations.
+
+```{r message=FALSE, warning=FALSE}
+
+# function
+
+iterations_costfunction <- function(iterations = 1200,X, Y) { # default iterationa number 1200
+  
+  iterations_error <- cbind(0,0) # initialize iterations error
+  colnames(iterations_error) <- c("iterations","convergence")
+  
+  for (i in seq(1:iterations)) { # for each iterations number from 1 to iterations limit
+    
+    parameters <- TestGradientDescent_2(iterations = i, var.exp, var.dep) # optimized parameters given iterations num.
+    
+    convergence <- c(CostFunction(parameters, var.exp, var.dep)) # cost function for given parameters
+    
+    output <- cbind(i,round(convergence,5))
+    
+    colnames(output) <- c("iterations","convergence")
+    
+    iterations_error <- rbind(iterations_error,output) # adding cost function value and iteration reference to iterations error
+    
+  }
+  
+  return(plot(iterations_error[-1,1],iterations_error[-1,2],xlab = "Iteration Num.", ylab = "Cost Function Value", main = "Cost Function value evolution"))} # plotting the results
+
+# applying
+
+costfunctions_evolution  <- iterations_costfunction(X = var.exp, Y = var.dep) # applying the function to our data
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1543946227626.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "A4EA2113",
+    "lastKnownWriteTime" : 1542376386,
+    "last_content_update" : 1542376386,
+    "path" : "C:/Users/Alvaro_2/Desktop/DS MASTER/machine learning/machine_learning_basics/4.GradientDescent_CostFunctions.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "13,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
